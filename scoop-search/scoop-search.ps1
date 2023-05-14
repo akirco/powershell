@@ -1,5 +1,3 @@
-function getBuckets(){
-
   $config_path = Join-Path $env:USERPROFILE ".config\scoop\config.json"
 
   if(!(Test-Path $config_path)){
@@ -7,12 +5,11 @@ function getBuckets(){
     return
   }
 
+$JSON = Get-Content $config_path | ConvertFrom-Json
 
-  $JSON = Get-Content $config_path | ConvertFrom-Json
+$root_path = $JSON.root_path
 
-
-  $root_path = $JSON.root_path
-
+function getBuckets(){
 
   $buckets = Join-Path $root_path "\buckets\*\bucket"
 
@@ -50,9 +47,18 @@ function scoop {
         [Parameter(Mandatory=$false, Position=1)][string]$Args
     )
 
-    if ($Command -eq "search") {
-        # Call our custom search function instead
-        scoopSearch -searchTerm $Args
+    $shims = Join-Path $root_path "shims\scoop.ps1"
+
+    switch($Command) {
+        "search" {
+            # Call our custom search function instead
+            scoopSearch -searchTerm $Args
+        }
+        default {
+            # Execute the Scoop command with the given arguments
+            $commandLine = "$shims $Command $Args"
+            Invoke-Expression $commandLine
+        }
     }
 }
 
