@@ -2,7 +2,7 @@ function getBuckets(){
 
   $config_path = Join-Path $env:USERPROFILE ".config\scoop\config.json"
 
-  if(!Test-Path $config_path){
+  if(!(Test-Path $config_path)){
     Write-Host "Please notice: $env:USERPROFILE\.config\scoop\config.json is available!" -ForegroundColor DarkYellow
     return
   }
