@@ -1,7 +1,21 @@
 function getBuckets(){
-  $root_path = Invoke-Expression "scoop config root_path"
 
-  $buckets = $root_path +"\buckets\*\bucket"
+  $config_path = Join-Path $env:USERPROFILE ".config\scoop\config.json"
+
+  if(!Test-Path $config_path){
+    Write-Host "Please notice: $env:USERPROFILE\.config\scoop\config.json is available!" -ForegroundColor DarkYellow
+    return
+  }
+
+
+  $JSON = Get-Content $config_path | ConvertFrom-Json
+
+
+  $root_path = $JSON.root_path
+
+
+  $buckets = Join-Path $root_path "\buckets\*\bucket"
+
 
   $bucketsDirs = Get-ChildItem -Path $buckets -Directory | Select-Object -ExpandProperty FullName
 
@@ -10,27 +24,36 @@ function getBuckets(){
 
 
 function scoopSearch {
-  param (
-    [Parameter(Mandatory=$false, Position=0)]
-    [string]$searchTerm = $args[0]
-  )
-
+    param(
+        [string]$searchTerm
+    )
   getBuckets | ForEach-Object {
     $bucketPath = $_
-    Get-ChildItem -Path $bucketPath -Recurse -Include *$searchTerm*.json |
-      ForEach-Object -Parallel {
-          $filePath = $_.FullName
-          $content = Get-Content $filePath -Raw
-          $bucket = (Split-Path $_.Directory -Parent).Substring((Split-Path $_.Directory -Parent).LastIndexOf("\")+1)
-          $packageName = $_.Name.Split(".")[0]
-          $packageJson = $content | ConvertFrom-Json
+    $manifestFiles = Get-ChildItem -Path $bucketPath -Recurse -Include *$searchTerm*.json
+    $manifestFiles | ForEach-Object -Parallel {
+          $currentFile = $_
+          $packageJson = Get-Content $currentFile.FullName -Raw | ConvertFrom-Json
+          $appName = $currentFile.Name.Split(".")[0]
+          $bucketName = (Split-Path $currentFile.Directory -Parent).Substring((Split-Path $currentFile.Directory -Parent).LastIndexOf("\")+1)
           [PSCustomObject]@{
               Version = $packageJson.version
-              App = $packageName
-              Bucket = $bucket
+              App = $appName
+              Bucket = $bucketName
           }
       } | Select-Object Bucket,App,Version -Unique | Format-Table -AutoSize
   }
+}
+
+function scoop {
+    param(
+        [Parameter(Mandatory=$true, Position=0)][string]$Command,
+        [Parameter(Mandatory=$false, Position=1)][string]$Args
+    )
+
+    if ($Command -eq "search") {
+        # Call our custom search function instead
+        scoopSearch -searchTerm $Args
+    }
 }
 
 
