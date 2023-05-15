@@ -55,7 +55,7 @@ function scoop {
     switch($Command) {
         "search" {
             # Call our custom search function instead
-            scoopSearch -searchTerm $Args[0]
+            scoopSearch -searchTerm $Args
         }
         default {
             # Execute the Scoop command with the given arguments
