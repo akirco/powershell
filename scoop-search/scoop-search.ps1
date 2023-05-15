@@ -43,25 +43,26 @@ function scoopSearch {
 
 function scoop {
     param(
-        [Parameter(Mandatory=$true, Position=0)][string]$Command,
-        [Parameter(Mandatory=$false, Position=1)][string]$Args
+        [Parameter(Mandatory=$false, Position=0)][string]$Command,
+        [Parameter(Mandatory=$false, Position=1)][string]$Args,
+        [Parameter(Mandatory=$false, Position=2)][string]$OptionArg1,
+        [Parameter(Mandatory=$false, Position=3)][string]$OptionArg2
     )
 
     $shims = Join-Path $root_path "shims\scoop.ps1"
 
+
     switch($Command) {
         "search" {
             # Call our custom search function instead
-            scoopSearch -searchTerm $Args
+            scoopSearch -searchTerm $Args[0]
         }
         default {
             # Execute the Scoop command with the given arguments
-            $commandLine = "$shims $Command $Args"
+
+            $commandLine = "$shims $Command $Args $OptionArg1 $OptionArg2"
+
             Invoke-Expression $commandLine
         }
     }
 }
-
-
-
-
