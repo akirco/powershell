@@ -125,8 +125,6 @@ function scoop {
 
     $shims = Join-Path $root_path "shims\scoop.ps1"
 
-    Write-Host $OptionArg1
-
 
     switch($Command) {
         "search" {
