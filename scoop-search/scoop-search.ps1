@@ -44,7 +44,7 @@ function scoopSearch {
 function searchRemote {
   param(
     [Parameter(Mandatory = $false, Position = 0)][string]$searchTerm,
-    [Parameter(Mandatory = $false, Position = 1)][int]$searchCount = 25
+    [Parameter(Mandatory = $false, Position = 1)][int]$searchCount = 30
   )
   $APP_URL = "https://scoopsearch.search.windows.net/indexes/apps/docs/search?api-version=2020-06-30";
   $APP_KEY = "DC6D2BBE65FC7313F2C52BBD2B0286ED";
@@ -63,10 +63,9 @@ function searchRemote {
     search           = $searchTerm
     top              = $searchCount
     orderby          = @(
-      "NameSortable asc",
+      "search.score() desc",
       "Metadata/OfficialRepositoryNumber desc",
-      "Metadata/RepositoryStars desc",
-      "Metadata/Committed desc"
+      "NameSortable asc"
     ) -join ","
     select           = @(
       "Id",
@@ -114,11 +113,49 @@ function searchRemote {
 
   $object = ConvertFrom-Json $content
 
-  $object.value | Format-Table @{Label = "Remote Repository"; Expression = { $_.Metadata.Repository + ".git" } }, @{Label = "App"; Expression = { $_.Name } }, Version -AutoSize
-
   $response.Close()
+
+  return $object
 }
 
+function scoopAdd {
+  param(
+    [Parameter(Mandatory = $false, Position = 0)][Object]$addAPP,
+    [Parameter(Mandatory = $false, Position = 1)][Object]$searchResult
+  )
+  $bucketPath = Join-Path $root_path "buckets" "remote"
+  $bucket = $addAPP.Split("/")[0]
+  $app = $addAPP.Split("/")[1]
+
+  $Repository = $searchResult.value.Metadata.Repository
+  $FilePath = $searchResult.value.Metadata.FilePath
+
+  $filteredBucket = $Repository | Where-Object {
+    $RepositoryUrl = $_
+    $remoteBucket = $RepositoryUrl.Substring($RepositoryUrl.LastIndexOf("/") + 1)
+    $remoteBucket -eq $bucket
+  } | Select-Object -First 1
+  $filteredApp = $FilePath | Where-Object {
+    $appPath = $_
+    $remoteApp = $appPath.Substring($appPath.LastIndexOf("/") + 1).Split(".")[0]
+    $remoteApp -eq $app
+  } | Select-Object -First 1
+
+  $remoteManifestFile = $filteredBucket.replace("github.com", "raw.githubusercontent.com") + "/master" + "/" + $filteredApp
+
+  $outFile = Join-Path $bucketPath $filteredApp
+
+
+  Invoke-WebRequest -Uri $remoteManifestFile -OutFile $outFile
+
+  if (Test-Path $outFile) {
+    Write-Host "Remote app ManifestFile is add successful..." -ForegroundColor Cyan
+  }
+
+
+}
+
+$Global:searchResult = $null
 
 function scoop {
   param(
@@ -135,7 +172,18 @@ function scoop {
     "search" {
       # Call our custom search function instead
       scoopSearch -searchTerm $Args
-      searchRemote $Args
+      $Global:searchResult = searchRemote $Args
+      $searchResult.value | Format-Table @{Label = "Remote Repository"; Expression = { $_.Metadata.Repository + ".git" } }, @{Label = "App"; Expression = { $_.Name } }, Version -AutoSize
+    }
+    "add" {
+      # Add the remote package to local
+      if ($null -ne $Global:searchResult) {
+        scoopAdd $Args $Global:searchResult
+      }
+      else {
+        Write-Host "Please execute 'scoop search' command first to get the remote package list." -ForegroundColor Magenta
+      }
+
     }
     default {
       # Execute the Scoop command with the given arguments
