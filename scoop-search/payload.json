@@ -1,0 +1,13 @@
+{
+  "count": true,
+  "search": "dim",
+  "searchMode": "all",
+  "filter": "",
+  "orderby": "NameSortable asc, Metadata/OfficialRepositoryNumber desc, Metadata/RepositoryStars desc, Metadata/Committed desc",
+  "skip": 0,
+  "top": 20,
+  "select": "Id,Name,NamePartial,NameSuffix,Description,Homepage,License,Version,Metadata/Repository,Metadata/FilePath,Metadata/OfficialRepository,Metadata/RepositoryStars,Metadata/Committed,Metadata/Sha",
+  "highlight": "Name,NamePartial,NameSuffix,Description,Version,License,Metadata/Repository",
+  "highlightPreTag": "<mark>",
+  "highlightPostTag": "</mark>"
+}
