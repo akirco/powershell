@@ -100,7 +100,6 @@ function searchRemote {
 
   $body = ConvertTo-Json $data
 
-  Write-Host $body
 
   $requestStream = $request.GetRequestStream()
   $writer = New-Object System.IO.StreamWriter($requestStream)
