@@ -24,9 +24,6 @@ function scoopSearch {
   param(
     [string]$searchTerm
   )
-  
-  $headerPrinted = $false
-
   getBuckets | ForEach-Object {
     $bucketPath = $_
     $manifestFiles = Get-ChildItem -Path $bucketPath -Recurse -Include *$searchTerm*.json
@@ -40,15 +37,7 @@ function scoopSearch {
         App     = $appName
         Bucket  = $bucketName
       }
-    } | Select-Object Bucket, App, Version -Unique | ForEach-Object {
-      if (-not $headerPrinted) {
-        $_ | Format-Table -AutoSize
-        $headerPrinted = $true
-      }
-      else {
-        $_ | Format-Table -AutoSize -HideTableHeaders
-      }
-    }
+    } | Select-Object Bucket, App, Version -Unique | Format-Table -AutoSize
   }
 }
 
