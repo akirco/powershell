@@ -26,7 +26,7 @@ function hosts {
     [Parameter(ParameterSetName = 'add')]
     [Switch]$add,
 
-    [Parameter(Mandatory = $false, Position = 1)][string]$domain
+    [Parameter(Mandatory = $true, Position = 1)][string]$domain
   )
 
   if ($cat) {
@@ -123,7 +123,7 @@ function upHosts() {
 
 function addHosts {
   param ( 
-    [Parameter(Mandatory = $false, Position = 0)][string]$domain
+    [Parameter(Mandatory = $true, Position = 0)][string]$domain
   )
   Import-Module PowerHTML
   $url = "https://sites.ipaddress.com/$domain"
