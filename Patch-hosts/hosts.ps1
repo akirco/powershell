@@ -21,7 +21,12 @@ function hosts {
     [Switch]$cat,
 
     [Parameter(ParameterSetName = 'up')]
-    [Switch]$up
+    [Switch]$up,
+
+    [Parameter(ParameterSetName = 'add')]
+    [Switch]$add,
+
+    [Parameter(Mandatory = $false, Position = 1)][string]$domain
   )
 
   if ($cat) {
@@ -29,6 +34,10 @@ function hosts {
   }
   elseif ($up) {
     upHosts
+  }
+  elseif ($add) {
+    Write-Host "Feching domain:"$domain
+    addHosts -domain $domain
   }
 }
 
@@ -108,5 +117,38 @@ function upHosts() {
       $time = Get-Date $updateDate
       Write-Host "Update time: $($time.ToString('yyyy-MM-dd HH:mm:ss'))" -ForegroundColor DarkMagenta
     }
+  }
+}
+
+
+function addHosts {
+  param ( 
+    [Parameter(Mandatory = $false, Position = 0)][string]$domain
+  )
+  Import-Module PowerHTML
+  $url = "https://sites.ipaddress.com/$domain"
+  $response = Invoke-WebRequest -Uri $url
+  $HTMLTable = ConvertFrom-Html $response
+
+  $table = $HTMLTable.SelectNodes("//pre")
+
+  try {
+    foreach ($row in $table.SelectNodes('a')) {
+      $ipAddress = $row.innerText.Trim()
+      $isIpAddress = [System.Net.IPAddress]::TryParse($ipAddress, [ref]$null)
+      if ($isIpAddress) {
+        Write-Host "Adding iP address:"$ipAddress
+        sudo.ps1 Add-Content $localhosts "# $domain start"
+        sudo.ps1 Add-Content $localhosts "$ipAddress $domain"
+        sudo.ps1 Add-Content $localhosts "# $domain end"
+        Invoke-Expression "ipconfig /flushdns"
+      }
+      else {
+        return
+      }
+    }
+  }
+  catch {
+    return
   }
 }
