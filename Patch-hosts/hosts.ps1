@@ -26,7 +26,7 @@ function hosts {
     [Parameter(ParameterSetName = 'add')]
     [Switch]$add,
 
-    [Parameter(Mandatory = $true, Position = 1)][string]$domain
+    [Parameter(Mandatory = $false, Position = 1)][string]$domain
   )
 
   if ($cat) {
@@ -35,9 +35,12 @@ function hosts {
   elseif ($up) {
     upHosts
   }
-  elseif ($add) {
+  elseif ($add -and $domain) {
     Write-Host "Feching domain:"$domain
     addHosts -domain $domain
+  }
+  else {
+    Write-Host "Invalid params..." -ForegroundColor Red
   }
 }
 
