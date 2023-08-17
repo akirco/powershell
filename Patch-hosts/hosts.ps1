@@ -149,9 +149,8 @@ function addHosts {
         return
       }
     }
-    Invoke-Expression "ipconfig /flushdns"
   }
-  catch {
-    return
+  finally {
+    Invoke-Expression "ipconfig /flushdns"
   }
 }
