@@ -140,16 +140,16 @@ function addHosts {
       $ipAddress = $row.innerText.Trim()
       $isIpAddress = [System.Net.IPAddress]::TryParse($ipAddress, [ref]$null)
       if ($isIpAddress) {
-        Write-Host "Adding iP address:"$ipAddress
+        Write-Host "Adding iP address:"$ipAddress -ForegroundColor DarkMagenta
         sudo.ps1 Add-Content $localhosts "# $domain start"
         sudo.ps1 Add-Content $localhosts "$ipAddress $domain"
         sudo.ps1 Add-Content $localhosts "# $domain end"
-        Invoke-Expression "ipconfig /flushdns"
       }
       else {
         return
       }
     }
+    Invoke-Expression "ipconfig /flushdns"
   }
   catch {
     return
