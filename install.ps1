@@ -1,36 +1,16 @@
-# install scoop 
 
-function Answer_Prompt() {
-    param
-    (
-        [Parameter(Position = 0, ValueFromPipeline = $true)]
-        [string]$msg,
-        [string]$BackgroundColor = "Black",
-        [string]$ForegroundColor = "DarkGreen"
-    )
 
-    Write-Host -ForegroundColor $ForegroundColor -NoNewline $msg;
-    return Read-Host
-}
+function check_partitions {
+        $partitions = Get-WmiObject -Class Win32_LogicalDisk
+        foreach ($partition in $partitions) {
+                $sizeGB = [math]::Round($partition.Size / 1GB, 2)
+                $freeSpaceGB = [math]::Round($partition.FreeSpace / 1GB, 2)
 
-function checkInstallerCache(){
-    
-}
-
-$choice = Answer_Prompt 'Do you want to install scoop ? [Y/N]'
-
-if($choice -eq 'y'){
-    Write-Host "Yeah, will download installer..."
-    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-    Invoke-RestMethod -Uri get.scoop.sh -OutFile 'installer.ps1'
-    $hash = (Get-FileHash -Path "./installer.ps1").Hash
-    Write-Host "Download success! Hash: $hash " -f Blue 
-    $startInstall = Answer_Prompt 'start install... ? [Y/N]'
-    if($startInstall -eq 'y'){
-        Invoke-Expression "./installer.ps1" 
-    }else{
-
-    }
-}else {
-    Exit-PSHostProcess
+                Write-Host "DeviceID: $($partition.DeviceID)"
+                Write-Host "VolumeName: $($partition.VolumeName)"
+                Write-Host "FileSystem: $($partition.FileSystem)"
+                Write-Host "Size: $sizeGB GB"
+                Write-Host "FreeSpace: $freeSpaceGB GB"
+                Write-Host "--------------------------"
+        }
 }
