@@ -1,8 +1,25 @@
-function chat() {
+$config_path = Join-Path $env:USERPROFILE ".config\scoop\config.json"
+
+if (!(Test-Path $config_path)) {
+  Write-Host "Please notice: $env:USERPROFILE\.config\scoop\config.json is available!" -ForegroundColor DarkYellow
+  return
+}
+
+$JSON = Get-Content $config_path | ConvertFrom-Json
+
+$API_KEY = $JSON.openai_key
+
+
+if ($API_KEY.Length -eq 0) {
+    Write-Host "Openai api key is invalid... `nPlease excute 'scoop config openai_key your api_key' to config chatgpt-ps."
+    return
+}
+
+function chatgpt() {
     $prompts = @()
     while ($true) {
         $sessionResponse = ""
-        Write-Host "Q: " -BackgroundColor DarkCyan -NoNewline
+        Write-Host "🐼: " -NoNewline
         $prompt = Read-Host
         if ($prompt -eq "q") {
             break
@@ -33,8 +50,7 @@ function chat() {
             }
             if ($prompts -ne @()) {
                 $API_URL = "https://openai.extrameta.cn/v1/chat/completions"
-                $API_KEY = ""
-                Write-Host "A: " -NoNewline -BackgroundColor DarkYellow
+                Write-Host "🤖: " -NoNewline
                 $request = [System.Net.WebRequest]::Create($API_URL)
                 $request.Method = "POST"
                 $request.ContentType = "application/json"
@@ -78,4 +94,4 @@ function chat() {
         }
     }
 }
-chat
+chatgpt
