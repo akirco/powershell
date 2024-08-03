@@ -10,7 +10,7 @@ $localhostsBackup = Join-Path $currentPath "hosts"
 
 $localhostsBackupHash = Get-FileHash -Path $localhostsBackup
 
-$remoteHosts = "https://ghproxy.com/https://raw.githubusercontent.com/521xueweihan/GitHub520/main/hosts"
+$remoteHosts = "https://raw.githubusercontent.com/521xueweihan/GitHub520/main/hosts"
 
 
 
