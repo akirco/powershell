@@ -1,7 +1,7 @@
 function BlinkCursor {
     param (
-        [int]$duration = 500, 
-        [int]$times = 5    
+        [int]$duration = 500,
+        [int]$times = 5
     )
 
     $visible = $true
@@ -18,3 +18,4 @@ function BlinkCursor {
     [Console]::SetCursorPosition($originalCursorLeft, $originalCursorTop)
 }
 
+BlinkCursor

@@ -6,14 +6,13 @@ function waitsec {
     Write-Host $c
     return $c
 }
- 
+
 function startFn {
-    write-host "running...... please wait" (waitsec)"S" -f Blue -NoNewline
     Start-Sleep -s (waitsec)
     while ($true) {
-        Write-Host "gap task"    
+        Write-Host "gap task"
         Start-Sleep -s (waitsec)
-    }   
+    }
 }
 
 startFn

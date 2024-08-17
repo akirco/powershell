@@ -1,10 +1,10 @@
-function Draw-Box {
+function DrawBox {
     param(
-        [Parameter(Position=0, Mandatory=$true)]
+        [Parameter(Position = 0, Mandatory = $true)]
         [string]$Text,
-        [Parameter(Position=1, Mandatory=$true)]
+        [Parameter(Position = 1, Mandatory = $true)]
         [int]$Width,
-        [Parameter(Position=2, Mandatory=$true)]
+        [Parameter(Position = 2, Mandatory = $true)]
         [int]$Height
     )
 
@@ -20,4 +20,4 @@ function Draw-Box {
     Write-Host $horizontalLine
 }
 
-Draw-Box -Text "This is a box" -Width 20 -Height 10
+DrawBox -Text "This is a box" -Width 20 -Height 10
